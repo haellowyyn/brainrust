@@ -1,18 +1,25 @@
 use instruction::Instruction;
 
+pub fn execute_program(program: &[Instruction], input: &[u8]) {
+    let mut machine = Machine::new(program, input);
+    machine.execute();
+}
+
 struct Machine<'a> {
     code: &'a [Instruction],
-    ip: usize, // instruction pointer
     data: Vec<u8>,
+    input: &'a [u8],
+    ip: usize, // instruction pointer
     dp: usize, // data pointer
 }
 
 impl<'a> Machine<'a> {
-    fn new(program: &[Instruction]) -> Machine {
+    fn new(program: &'a [Instruction], input: &'a [u8]) -> Machine<'a> {
         Machine {
             code: program,
-            ip: 0,
             data: vec![0],
+            input: input,
+            ip: 0,
             dp: 0,
         }
     }
@@ -52,19 +59,33 @@ impl<'a> Machine<'a> {
     }
 
     fn exec_inc(&mut self) {
-        self.data[self.dp] += 1;
+        let val = self.data[self.dp];
+        self.data[self.dp] = if val == 255 {
+            0
+        } else {
+            val + 1
+        };
     }
 
     fn exec_dec(&mut self) {
-        self.data[self.dp] -= 1;
+        let val = self.data[self.dp];
+        self.data[self.dp] = if val == 0 {
+            255
+        } else {
+            val - 1
+        };
     }
 
     fn exec_put(&self) {
-        print!("{}", self.data[self.dp] as char);
+        print!("{}", self.data[self.dp] as u8 as char);
     }
 
-    fn exec_get(&self) {
-        // TODO
+    fn exec_get(&mut self) {
+        if self.input.is_empty() {
+            return;
+        }
+        self.data[self.dp] = self.input[0];
+        self.input = &self.input[1..];
     }
 
     fn exec_skip(&mut self) {
@@ -104,9 +125,4 @@ impl<'a> Machine<'a> {
             };
         }
     }
-}
-
-pub fn execute_program(program: &[Instruction]) {
-    let mut machine = Machine::new(program);
-    machine.execute();
 }

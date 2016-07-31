@@ -18,7 +18,9 @@ fn main() {
             return;
         }
     };
-    machine::execute_program(&program);
+    let input = matches.value_of("input").unwrap();
+    let input_bytes: Vec<u8> = input.bytes().collect();
+    machine::execute_program(&program, &input_bytes);
 }
 
 fn parse_args<'a>() -> clap::ArgMatches<'a> {
@@ -34,6 +36,7 @@ fn parse_args<'a>() -> clap::ArgMatches<'a> {
             .short("i")
             .value_name("input")
             .required(false)
+            .default_value("")
             .help("program input"))
         .get_matches()
 }
