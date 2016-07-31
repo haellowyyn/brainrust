@@ -1,14 +1,16 @@
 use instruction::Instruction;
 
-pub fn execute_program(program: &[Instruction], input: &[u8]) {
+pub fn execute_program(program: &[Instruction], input: &[u8]) -> Vec<u8> {
     let mut machine = Machine::new(program, input);
     machine.execute();
+    machine.output
 }
 
 struct Machine<'a> {
     code: &'a [Instruction],
     data: Vec<u8>,
     input: &'a [u8],
+    output: Vec<u8>,
     ip: usize, // instruction pointer
     dp: usize, // data pointer
 }
@@ -19,6 +21,7 @@ impl<'a> Machine<'a> {
             code: program,
             data: vec![0],
             input: input,
+            output: Vec::new(),
             ip: 0,
             dp: 0,
         }
@@ -76,8 +79,8 @@ impl<'a> Machine<'a> {
         };
     }
 
-    fn exec_put(&self) {
-        print!("{}", self.data[self.dp] as u8 as char);
+    fn exec_put(&mut self) {
+        self.output.push(self.data[self.dp]);
     }
 
     fn exec_get(&mut self) {

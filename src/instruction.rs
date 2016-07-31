@@ -1,20 +1,20 @@
 #[derive(Debug)]
 pub enum Instruction {
-    // Increment the data pointer.
+    // (>) Increment the data pointer.
     Next,
-    // Decrement the data pointer.
+    // (<) Decrement the data pointer.
     Prev,
-    // Increment the byte at the data pointer.
+    // (+) Increment the byte at the data pointer.
     Inc,
-    // Decrement the byte at the data pointer.
+    // (-) Decrement the byte at the data pointer.
     Dec,
-    // Output the byte at the data pointer.
+    // (.) Output the byte at the data pointer.
     Put,
-    // Accept one byte of input, store at it the data pointer.
+    // (,) Accept one byte of input, store at it the data pointer.
     Get,
-    // If the byte at the data pointer is zero, skip forward to the matching Loop.
+    // ([) If the byte at the data pointer is zero, skip forward to the matching Loop.
     Skip,
-    // If the byte at the data pointer is nonzero, jump back to the matching Skip.
+    // (]) If the byte at the data pointer is nonzero, jump back to the matching Skip.
     Loop,
 }
 

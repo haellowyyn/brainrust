@@ -20,7 +20,8 @@ fn main() {
     };
     let input = matches.value_of("input").unwrap();
     let input_bytes: Vec<u8> = input.bytes().collect();
-    machine::execute_program(&program, &input_bytes);
+    let output = machine::execute_program(&program, &input_bytes);
+    print_output(&output);
 }
 
 fn parse_args<'a>() -> clap::ArgMatches<'a> {
@@ -54,4 +55,10 @@ fn read_program(matches: &clap::ArgMatches) -> io::Result<Vec<Instruction>> {
         }
     }
     Ok(program)
+}
+
+fn print_output(output: &[u8]) {
+    for &byte in output {
+        print!("{}", byte as char);
+    }
 }
