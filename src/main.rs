@@ -1,8 +1,13 @@
 extern crate clap;
 
+mod instruction;
+mod machine;
+
 use std::io;
 use std::io::{Read, BufReader};
 use std::fs::File;
+
+use instruction::Instruction;
 
 fn main() {
     let matches = parse_args();
@@ -13,7 +18,7 @@ fn main() {
             return;
         }
     };
-    execute_program(&program);
+    machine::execute_program(&program);
 }
 
 fn parse_args<'a>() -> clap::ArgMatches<'a> {
@@ -33,15 +38,17 @@ fn parse_args<'a>() -> clap::ArgMatches<'a> {
         .get_matches()
 }
 
-fn read_program(matches: &clap::ArgMatches) -> io::Result<String> {
+fn read_program(matches: &clap::ArgMatches) -> io::Result<Vec<Instruction>> {
     let filename = matches.value_of("program_file").unwrap();
     let file = try!(File::open(filename));
-    let mut reader = BufReader::new(file);
-    let mut buf = String::new();
-    try!(reader.read_to_string(&mut buf));
-    Ok(buf)
-}
+    let reader = BufReader::new(file);
 
-fn execute_program(program: &str) {
-    // TODO
+    let mut program = Vec::new();
+    for b in reader.bytes() {
+        let byte = try!(b);
+        if let Some(instr) = Instruction::from_byte(byte) {
+            program.push(instr);
+        }
+    }
+    Ok(program)
 }
