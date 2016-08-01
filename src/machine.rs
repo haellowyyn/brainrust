@@ -1,3 +1,5 @@
+use std::slice;
+
 use instruction::Instruction;
 
 pub fn execute_program(program: &[Instruction], input: &[u8]) -> Vec<u8> {
@@ -9,7 +11,7 @@ pub fn execute_program(program: &[Instruction], input: &[u8]) -> Vec<u8> {
 struct Machine<'a> {
     code: &'a [Instruction],
     data: Vec<u8>,
-    input: &'a [u8],
+    input: slice::Iter<'a, u8>,
     output: Vec<u8>,
     ip: usize, // instruction pointer
     dp: usize, // data pointer
@@ -20,7 +22,7 @@ impl<'a> Machine<'a> {
         Machine {
             code: program,
             data: vec![0],
-            input: input,
+            input: input.iter(),
             output: Vec::new(),
             ip: 0,
             dp: 0,
@@ -84,11 +86,9 @@ impl<'a> Machine<'a> {
     }
 
     fn exec_get(&mut self) {
-        if self.input.is_empty() {
-            return;
+        if let Some(byte) = self.input.next() {
+            self.data[self.dp] = *byte;
         }
-        self.data[self.dp] = self.input[0];
-        self.input = &self.input[1..];
     }
 
     fn exec_skip(&mut self) {
