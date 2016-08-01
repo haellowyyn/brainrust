@@ -31,16 +31,17 @@ impl<'a> Machine<'a> {
 
     fn execute(&mut self) {
         while self.ip < self.code.len() {
-            let instr = &self.code[self.ip];
-            match *instr {
-                Instruction::Next => self.exec_next(),
-                Instruction::Prev => self.exec_prev(),
-                Instruction::Inc => self.exec_inc(),
-                Instruction::Dec => self.exec_dec(),
-                Instruction::Put => self.exec_put(),
-                Instruction::Get => self.exec_get(),
-                Instruction::Skip => self.exec_skip(),
-                Instruction::Loop => self.exec_loop(),
+            use instruction::Instruction::*;
+
+            match self.code[self.ip] {
+                Next => self.exec_next(),
+                Prev => self.exec_prev(),
+                Inc => self.exec_inc(),
+                Dec => self.exec_dec(),
+                Put => self.exec_put(),
+                Get => self.exec_get(),
+                Skip => self.exec_skip(),
+                Loop => self.exec_loop(),
             };
 
             self.ip += 1;
@@ -65,20 +66,12 @@ impl<'a> Machine<'a> {
 
     fn exec_inc(&mut self) {
         let val = self.data[self.dp];
-        self.data[self.dp] = if val == 255 {
-            0
-        } else {
-            val + 1
-        };
+        self.data[self.dp] = if val == 255 { 0 } else { val + 1 };
     }
 
     fn exec_dec(&mut self) {
         let val = self.data[self.dp];
-        self.data[self.dp] = if val == 0 {
-            255
-        } else {
-            val - 1
-        };
+        self.data[self.dp] = if val == 0 { 255 } else { val - 1 };
     }
 
     fn exec_put(&mut self) {

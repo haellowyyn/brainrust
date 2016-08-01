@@ -1,34 +1,36 @@
+use self::Instruction::*;
+
 #[derive(Debug)]
 pub enum Instruction {
-    // (>) Increment the data pointer.
+    /// (>) Increment the data pointer.
     Next,
-    // (<) Decrement the data pointer.
+    /// (<) Decrement the data pointer.
     Prev,
-    // (+) Increment the byte at the data pointer.
+    /// (+) Increment the byte at the data pointer.
     Inc,
-    // (-) Decrement the byte at the data pointer.
+    /// (-) Decrement the byte at the data pointer.
     Dec,
-    // (.) Output the byte at the data pointer.
+    /// (.) Output the byte at the data pointer.
     Put,
-    // (,) Accept one byte of input, store at it the data pointer.
+    /// (,) Accept one byte of input, store at it the data pointer.
     Get,
-    // ([) If the byte at the data pointer is zero, skip forward to the matching Loop.
+    /// ([) If the byte at the data pointer is zero, skip forward to the matching Loop.
     Skip,
-    // (]) If the byte at the data pointer is nonzero, jump back to the matching Skip.
+    /// (]) If the byte at the data pointer is nonzero, jump back to the matching Skip.
     Loop,
 }
 
 impl Instruction {
     pub fn from_byte(byte: u8) -> Option<Instruction> {
         match byte {
-            b'>' => Some(Instruction::Next),
-            b'<' => Some(Instruction::Prev),
-            b'+' => Some(Instruction::Inc),
-            b'-' => Some(Instruction::Dec),
-            b'.' => Some(Instruction::Put),
-            b',' => Some(Instruction::Get),
-            b'[' => Some(Instruction::Skip),
-            b']' => Some(Instruction::Loop),
+            b'>' => Some(Next),
+            b'<' => Some(Prev),
+            b'+' => Some(Inc),
+            b'-' => Some(Dec),
+            b'.' => Some(Put),
+            b',' => Some(Get),
+            b'[' => Some(Skip),
+            b']' => Some(Loop),
             _ => None,
         }
     }
