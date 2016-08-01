@@ -1,6 +1,7 @@
 use self::Instruction::*;
 
 #[derive(Debug)]
+#[derive(Clone)]
 pub enum Instruction {
     /// (>) Increment the data pointer.
     Next,

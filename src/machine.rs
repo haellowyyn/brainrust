@@ -1,5 +1,3 @@
-use std::slice;
-
 use instruction::Instruction;
 
 pub fn execute_program(program: &[Instruction], input: &[u8]) -> Vec<u8> {
@@ -8,21 +6,26 @@ pub fn execute_program(program: &[Instruction], input: &[u8]) -> Vec<u8> {
     machine.output
 }
 
-struct Machine<'a> {
-    code: &'a [Instruction],
+struct Machine {
+    code: Vec<Instruction>,
     data: Vec<u8>,
-    input: slice::Iter<'a, u8>,
+    input: Vec<u8>,
     output: Vec<u8>,
     ip: usize, // instruction pointer
     dp: usize, // data pointer
 }
 
-impl<'a> Machine<'a> {
-    fn new(program: &'a [Instruction], input: &'a [u8]) -> Machine<'a> {
+impl Machine {
+    fn new(program: &[Instruction], input: &[u8]) -> Machine {
+        // We need to consume the input from first to last byte, but Vec only allows us to pop
+        // the last element. Thus, we store the input in reverse.
+        let mut input_vec = input.to_vec();
+        input_vec.reverse();
+
         Machine {
-            code: program,
+            code: program.to_vec(),
             data: vec![0],
-            input: input.iter(),
+            input: input_vec,
             output: Vec::new(),
             ip: 0,
             dp: 0,
@@ -79,8 +82,8 @@ impl<'a> Machine<'a> {
     }
 
     fn exec_get(&mut self) {
-        if let Some(byte) = self.input.next() {
-            self.data[self.dp] = *byte;
+        if let Some(byte) = self.input.pop() {
+            self.data[self.dp] = byte;
         }
     }
 
