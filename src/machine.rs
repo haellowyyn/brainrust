@@ -8,17 +8,22 @@ pub fn execute_program(program: &[Instruction], input: &[u8]) -> Vec<u8> {
 
 struct Machine {
     code: Vec<Instruction>,
+    /// data array; grows as needed
     data: Vec<u8>,
+    /// input; stored in reverse for more efficient consumption
     input: Vec<u8>,
     output: Vec<u8>,
-    ip: usize, // instruction pointer
-    dp: usize, // data pointer
+    /// instruction pointer
+    ip: usize,
+    /// data pointer
+    dp: usize,
 }
 
 impl Machine {
     fn new(program: &[Instruction], input: &[u8]) -> Machine {
-        // We need to consume the input from first to last byte, but Vec only allows us to pop
-        // the last element. Thus, we store the input in reverse.
+        // We need to consume the input from first to last byte, but removing from the front of
+        // a Vec is much less efficient than popping from the end. Thus, we store the input in
+        // reverse.
         let mut input_vec = input.to_vec();
         input_vec.reverse();
 
@@ -45,6 +50,10 @@ impl Machine {
                 Get => self.exec_get(),
                 Skip => self.exec_skip(),
                 Loop => self.exec_loop(),
+                Fwd(n) => self.exec_fwd(n),
+                Bwd(n) => self.exec_bwd(n),
+                Add(b) => self.exec_add(b),
+                Sub(b) => self.exec_sub(b),
             };
 
             self.ip += 1;
@@ -68,13 +77,13 @@ impl Machine {
     }
 
     fn exec_inc(&mut self) {
-        let val = self.data[self.dp];
-        self.data[self.dp] = if val == 255 { 0 } else { val + 1 };
+        let val = self.data[self.dp] as u16;
+        self.data[self.dp] = (val + 1) as u8;
     }
 
     fn exec_dec(&mut self) {
-        let val = self.data[self.dp];
-        self.data[self.dp] = if val == 0 { 255 } else { val - 1 };
+        let val = self.data[self.dp] as i16;
+        self.data[self.dp] = (val - 1) as u8;
     }
 
     fn exec_put(&mut self) {
@@ -123,5 +132,29 @@ impl Machine {
                 _ => {}
             };
         }
+    }
+
+    fn exec_fwd(&mut self, n: usize) {
+        self.dp += n;
+        if self.dp >= self.data.len() {
+            self.data.resize(self.dp + 1, 0);
+        }
+    }
+
+    fn exec_bwd(&mut self, n: usize) {
+        if self.dp < n {
+            panic!("Data pointer moved below 0.");
+        }
+        self.dp -= n;
+    }
+
+    fn exec_add(&mut self, b: u8) {
+        let val = self.data[self.dp] as u16;
+        self.data[self.dp] = (val + b as u16) as u8;
+    }
+
+    fn exec_sub(&mut self, b: u8) {
+        let val = self.data[self.dp] as i16;
+        self.data[self.dp] = (val - b as i16) as u8;
     }
 }

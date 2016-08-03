@@ -2,6 +2,7 @@ extern crate clap;
 
 mod instruction;
 mod machine;
+mod optimizer;
 
 use std::io;
 use std::io::{Read, BufReader};
@@ -20,7 +21,10 @@ fn main() {
     };
     let input = matches.value_of("input").unwrap();
     let input_bytes: Vec<u8> = input.bytes().collect();
-    let output = machine::execute_program(&program, &input_bytes);
+
+    let opt_program = optimizer::optimize(&program);
+    let output = machine::execute_program(&opt_program, &input_bytes);
+
     print_output(&output);
 }
 

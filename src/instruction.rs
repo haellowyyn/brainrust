@@ -2,6 +2,7 @@ use self::Instruction::*;
 
 #[derive(Debug)]
 #[derive(Clone)]
+#[derive(PartialEq)]
 pub enum Instruction {
     /// (>) Increment the data pointer.
     Next,
@@ -19,6 +20,17 @@ pub enum Instruction {
     Skip,
     /// (]) If the byte at the data pointer is nonzero, jump back to the matching Skip.
     Loop,
+
+    // The following instructions are only used for optimization and have no source code
+    // representation.
+    /// Increment the data pointer by n.
+    Fwd(usize),
+    /// Decrement the data pointer by n.
+    Bwd(usize),
+    /// Add n to the byte at the data pointer.
+    Add(u8),
+    /// Subtract n from the byte at the data pointer.
+    Sub(u8),
 }
 
 impl Instruction {
@@ -32,6 +44,23 @@ impl Instruction {
             b',' => Some(Get),
             b'[' => Some(Skip),
             b']' => Some(Loop),
+            _ => None,
+        }
+    }
+
+    pub fn is_accumulatable(&self) -> bool {
+        match *self {
+            Next | Prev | Inc | Dec => true,
+            _ => false,
+        }
+    }
+
+    pub fn to_accumulated(&self, count: usize) -> Option<Instruction> {
+        match *self {
+            Next => Some(Fwd(count)),
+            Prev => Some(Bwd(count)),
+            Inc => Some(Add(count as u8)),
+            Dec => Some(Sub(count as u8)),
             _ => None,
         }
     }
